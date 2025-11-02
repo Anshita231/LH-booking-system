@@ -11,10 +11,9 @@ import axios from "axios";
 import Home from "./Components/Home/Home";
 import Logout from "./Components/Logout/Logout";
 import ReqLogs from "./Components/RequestLog/ReqLogs";
-import { getBackendURL } from "./config/apiConfig";
 
 const authAxios = axios.create({
-  baseURL: getBackendURL(),
+  baseURL:process.env.REACT_APP_BACKEND_URL,
   withCredentials: true
 })
 authAxios.interceptors.request.use((request)=>{
@@ -31,8 +30,19 @@ function App() {
   const role=localStorage.getItem('role')
   
   const validateToken= async ()=>{
+    const backendURL = process.env.REACT_APP_BACKEND_URL;
+    
+    if (!backendURL) {
+      console.error("REACT_APP_BACKEND_URL is not set!");
+      setIsLoading(false);
+      setIsAuthenticated(false);
+      return;
+    }
+    
+    console.log("Validating token with backend:", backendURL);
+    
     try{
-      await axios.get(`${getBackendURL()}/api/user`,{withCredentials:true}).then((resp)=>{
+      await axios.get(`${backendURL}/api/user`,{withCredentials:true}).then((resp)=>{
         if(resp.status===200){
           setIsAuthenticated(true)
           if(localStorage){
@@ -43,15 +53,17 @@ function App() {
         }
         setIsLoading(false)
       }).catch(function (err){
+        console.error("Token validation error:", err);
+        console.error("Error response:", err.response);
         setIsAuthenticated(false)
         setIsLoading(false)
         // Don't navigate here, let routes handle it
       })
     }
     catch(err){
+      console.error("Token validation exception:", err);
       setIsAuthenticated(false)
       setIsLoading(false)
-      console.log(err)
     }
   }
 
