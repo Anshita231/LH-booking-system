@@ -24,7 +24,7 @@ app.use(
     credentials: true,
     origin: process.env.FRONTEND_URL 
       ? process.env.FRONTEND_URL.split(',') 
-      : ["http://localhost:3000"],
+      : ["https://lh-booking-system-frontend.vercel.app/"],
   })
 );
 
