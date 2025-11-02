@@ -11,9 +11,10 @@ import axios from "axios";
 import Home from "./Components/Home/Home";
 import Logout from "./Components/Logout/Logout";
 import ReqLogs from "./Components/RequestLog/ReqLogs";
+import { getBackendURL } from "./config/apiConfig";
 
 const authAxios = axios.create({
-  baseURL:process.env.REACT_APP_BACKEND_URL,
+  baseURL: getBackendURL(),
   withCredentials: true
 })
 authAxios.interceptors.request.use((request)=>{
@@ -31,7 +32,7 @@ function App() {
   
   const validateToken= async ()=>{
     try{
-      await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/user`,{withCredentials:true}).then((resp)=>{
+      await axios.get(`${getBackendURL()}/api/user`,{withCredentials:true}).then((resp)=>{
         if(resp.status===200){
           setIsAuthenticated(true)
           if(localStorage){
