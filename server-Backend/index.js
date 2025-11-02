@@ -19,12 +19,40 @@ const cron = require("node-cron");
 const Booking = require("./models/Booking");
 //middlewares
 
+// CORS configuration - allow both localhost and Vercel frontend
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://lh-booking-system-frontend.vercel.app",
+];
+
+// Add any additional origins from environment variable
+if (process.env.FRONTEND_URL) {
+  const envOrigins = process.env.FRONTEND_URL.split(',').map(origin => origin.trim());
+  allowedOrigins.push(...envOrigins);
+}
+
 app.use(
   cors({
     credentials: true,
-    origin: process.env.FRONTEND_URL 
-      ? process.env.FRONTEND_URL.split(',') 
-      : ["https://lh-booking-system-frontend.vercel.app/login"],
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps, Postman, etc.)
+      if (!origin) return callback(null, true);
+      
+      // Check if origin is in allowed list
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } 
+      // Allow any Vercel preview deployments (for testing)
+      else if (origin.includes('.vercel.app')) {
+        callback(null, true);
+      }
+      // Strict mode: reject unknown origins
+      else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
 
@@ -92,8 +120,12 @@ cron.schedule("22 21 * * *", async () => {
 
 const PORT = process.env.PORT || 9000;
 
-app.listen(PORT, () => {
-  console.log(`Server connected on port ${PORT}!`);
-});
+// Export the app for Vercel serverless functions
+module.exports = app;
 
-
+// Start server for local development (won't run on Vercel)
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server connected on port ${PORT}!`);
+  });
+}
