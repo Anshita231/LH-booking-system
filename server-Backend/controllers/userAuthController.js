@@ -36,6 +36,7 @@ module.exports.signup = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000, // 1 day
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       secure: process.env.NODE_ENV === 'production', // true in production (HTTPS), false in development
+      path: "/"
     });
 
     res.status(201).json({ message: 'Signup successful', user: { email: newUser.email, role: newUser.role } });
@@ -82,6 +83,7 @@ module.exports.login = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000, // 1 day
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       secure: process.env.NODE_ENV === 'production', // true in production (HTTPS), false in development
+      path: "/"
     });
 
     // Set user data in the session (if using session)
@@ -105,6 +107,7 @@ module.exports.logout = async (req, res) => {
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
+    path: "/"
   });
   res.json({ message: 'Logout successful' });
 };
